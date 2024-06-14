@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tutorial13;
+using Tutorial13.DTOs;
 using Tutorial13.Entities;
 
 namespace Tutorial13.Controllers
@@ -16,23 +17,28 @@ namespace Tutorial13.Controllers
     {
         // GET: api/WeatherRecord
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<WeatherRecord>>> GetWeatherRecords()
+        public async Task<ActionResult<IEnumerable<ShortWeatherRecordDto>>> GetWeatherRecords(
+            CancellationToken cancellationToken)
         {
-            return await context.WeatherRecords.ToListAsync();
+            var records = await context.WeatherRecords.Include(wr => wr.City)
+                .Include(wr => wr.WeatherType).ToListAsync(cancellationToken);
+            return Ok(records.Select(r => new ShortWeatherRecordDto(r)));
         }
 
         // GET: api/WeatherRecord/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<WeatherRecord>> GetWeatherRecord(int id)
+        public async Task<ActionResult<LongWeatherRecordDto>> GetWeatherRecord(int id)
         {
-            var weatherRecord = await context.WeatherRecords.FindAsync(id);
+            var weatherRecord = await context.WeatherRecords.Include(wr => wr.WeatherType)
+                .Include(wr => wr.City).ThenInclude(c => c.Country)
+                .FirstOrDefaultAsync(wr => wr.Id == id);
 
             if (weatherRecord == null)
             {
                 return NotFound();
             }
-
-            return weatherRecord;
+            
+            return new LongWeatherRecordDto(weatherRecord);
         }
 
         // PUT: api/WeatherRecord/5
