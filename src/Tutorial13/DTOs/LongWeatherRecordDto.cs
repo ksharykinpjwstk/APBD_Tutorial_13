@@ -9,6 +9,7 @@ public class LongWeatherRecordDto : WeatherRecordDto
         WeatherType = record.WeatherType.Name;
         CityInformation = new CityDto
         {
+            Id = record.City.Id,
             Name = record.City.Name,
             CountryName = record.City.Country.Name,
             Latitude = record.City.Latitude,
@@ -19,7 +20,7 @@ public class LongWeatherRecordDto : WeatherRecordDto
         DateHappened = record.DateHappened;
     }
 
-    public CityDto CityInformation { get; set; } = null!;
+    public CityDto CityInformation { get; set; }
     
     public string? Description { get; set; }
 }

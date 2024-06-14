@@ -41,46 +41,24 @@ namespace Tutorial13.Controllers
             return new LongWeatherRecordDto(weatherRecord);
         }
 
-        // PUT: api/WeatherRecord/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutWeatherRecord(int id, WeatherRecord weatherRecord)
-        {
-            if (id != weatherRecord.Id)
-            {
-                return BadRequest();
-            }
-
-            context.Entry(weatherRecord).State = EntityState.Modified;
-
-            try
-            {
-                await context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!WeatherRecordExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
         // POST: api/WeatherRecord
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<WeatherRecord>> PostWeatherRecord(WeatherRecord weatherRecord)
+        public async Task<ActionResult<AddWeatherRecordDto>> PostWeatherRecord(AddWeatherRecordDto weatherRecord)
         {
-            context.WeatherRecords.Add(weatherRecord);
+            if (!context.WeatherTypes.Any(wt => string.Equals(wt.Name, weatherRecord.WeatherType)))
+            {
+                ModelState.AddModelError("WeatherType", "Unknown weather type.");
+                return ValidationProblem(ModelState);
+            }
+
+            var newWeatherRecord = weatherRecord.Map();
+            newWeatherRecord.WeatherTypeId =
+                context.WeatherTypes.First(wt => string.Equals(wt.Name, weatherRecord.WeatherType)).Id;
+            context.WeatherRecords.Add(newWeatherRecord);
             await context.SaveChangesAsync();
 
-            return CreatedAtAction("GetWeatherRecord", new { id = weatherRecord.Id }, weatherRecord);
+            return CreatedAtAction("GetWeatherRecord", new { id = newWeatherRecord.Id }, weatherRecord);
         }
 
         // DELETE: api/WeatherRecord/5

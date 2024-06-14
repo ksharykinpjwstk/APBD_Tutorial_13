@@ -5,11 +5,6 @@ namespace Tutorial13.DTOs;
 
 public class ShortWeatherRecordDto : WeatherRecordDto
 {
-    public ShortWeatherRecordDto()
-    {
-        
-    }
-
     public ShortWeatherRecordDto(WeatherRecord record)
     {
         Id = record.Id;
@@ -21,5 +16,5 @@ public class ShortWeatherRecordDto : WeatherRecordDto
     
     public int Id { get; set; }
 
-    public string City { get; set; } = null!;
+    public string City { get; set; }
 }
