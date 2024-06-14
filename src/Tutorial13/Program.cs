@@ -1,5 +1,10 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.EntityFrameworkCore;
+using Tutorial13;
 
+var builder = WebApplication.CreateBuilder(args);
+var config = builder.Configuration;
+builder.Services.AddDbContext<WeatherBookContext>(
+    options => options.UseSqlServer(config.GetConnectionString("Default")));
 // Add services to the container.
 
 builder.Services.AddControllers();
